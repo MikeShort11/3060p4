@@ -1,0 +1,125 @@
+Objective
+
+In this assignment, you will be writing a program that reads a list of process arrival times and durations from stdin. (Reading from stdin, the standard input stream, is the same as reading from the keyboard.) That list of arrival times and durations (or bursts) will be used four times to run through the following CPU scheduling algorithms:
+
+    First Come, First Served
+    Shortest Job First
+    Shortest Remaining Time First
+    Round Robin
+
+Your program will show three statistics; the average process response time, the average process wait time, and the average process turnaround time for each scheduling algorithm. The time quantum for the Round Robin scheduler should be passed in as a command-line parameter, with a default value of 100ms. Your program only needs to work with a maximum of 100 processes.
+
+This programming assignment can be written in C, C++, C#, Java, or Python 3. There are many different versions of these programming languages and their libraries, so make sure your program compiles and runs on the class server (cs3060.tc.uvu.edu). If your program does not compile and run on the class server you won't get any credit for it.
+
+If you write your program on a computer other than the server, I recommend that you frequently test it on the server. If you write your whole program without testing it on the server and then find out that it doesn't run on the server, it might be difficult to figure out how to fix it so that it runs on the server.
+
+This is the only programming assignment for this class that can be written in a language other than C.
+Rationale
+
+Implementing CPU scheduling algorithms will help you understand the algorithms better, and will also help you understand the general conceptys of CPU scheduling. Writing this program also helps you learn about simulations, which are important in studying operating systems, computer science in general, and many other topics.
+Hints
+
+    Don't overcomplicate this assignment. Keep your process arrival times in one integer array, your burst times in another integer array, and then refer to those processes via other arrays.
+    Do not modify your original arrays as you will be reusing the data in those arrays multiple times.
+    This program is simply an adder of process run times to a clock. Use the value of the clock to determine if new processes need to be added to your queue.
+        Some students have tried to write a program that increments the clock one tick at a time. This is the difficult way to do it and is also incorrect.
+    The context switch cost is negligible and is not figured into this assignment.
+    If you want to see detailed examples of simulating each of the four algorithms in a spreadsheet, see this page: Scheduling algorithm videos
+
+Output
+
+With this process list
+Download this process list
+
+, the output of your program should look like this:
+
+$ ./p4 < processlist.txt
+First Come, First Served
+Avg. Resp.:276.40, Avg. T.A.:448.90, Avg. Wait:276.40
+
+Shortest Job First
+Avg. Resp.:202.90, Avg. T.A.:375.40, Avg. Wait:202.90
+
+Shortest Remaining Time First
+Avg. Resp.:148.30, Avg. T.A.:353.30, Avg. Wait:180.80
+
+Round Robin with Time Quantum of 100
+Avg. Resp.:133.90, Avg. T.A.:555.90, Avg. Wait:383.40
+
+Please note that each average displayed shows a result up to two decimal places. Also note that the contents of a file (processlist.txt) are redirected to stdin using < (the less-than symbol). Your program should work the same way.
+
+Here's a smaller example of input data. Each line has an arrival time and a duration (burst time) of a process. The Round Robin stats in the output are for a time quantum of 5.
+5 8
+8 10
+15 3
+17 2
+
+Here's the output. Note the command-line parameter (5) for the time quantum.
+
+$ ./p4 5 < ex1.txt
+First Come, First Served
+Avg. Resp.:5.50, Avg. T.A.:11.25, Avg. Wait:5.50
+
+Shortest Job First
+Avg. Resp.:5.25, Avg. T.A.:11.00, Avg. Wait:5.25
+
+Shortest Remaining Time First
+Avg. Resp.:1.50, Avg. T.A.:8.50, Avg. Wait:2.75
+
+Round Robin with Time Quantum of 5
+Avg. Resp.:3.50, Avg. T.A.:12.00, Avg. Wait:6.25
+
+Notes
+
+■ Response time can be calculated by subtracting the process's arrival time from the clock time when the process first starts running. The waiting time is the total of all of the time intervals when the process is not running, after its arrival time and before it finishes. Turnaround time is calculated by subtracting the process's arrival time from the clock time when it finishes.
+
+For round robin, new processes should be added to the ready queue before the process whose quantum just ended. For example, if P2 arrives at time 16 and P1's quantum ends at time 16, then P2 should be ahead of P1 in the ready queue.
+
+■ You can assume that the process arrival times will be in order from smallest to largest in the input.
+
+■ To avoid having to type in a lot of numbers every time you run the program you can use input redirection. Use a command like this:
+      $ ./p4 < numbers.txt
+where numbers.txt is the name of a plain-text file that has numbers separated by white space (spaces, newlines, or tabs). You will not get full credit if your program can't be run the same way.
+Makefile
+
+These are the commands you can use to compile programs on the server:
+C# 	mcs p4.cs
+C++ 	g++ -o p4 p4.cpp
+Java 	javac Project4.java
+
+Please use those commands in the Makefile you turn in.
+
+C# will compile to p4.exe
+Java will compile to Project4.class (assuming that the main class in your program is named Project4)
+
+You don't have to turn in a Makefile if you write your program in Python.
+Executable file for Python, Java, or C# programs
+
+The C and C++ compilers produce executable files that don't require an interpreter to run them, but the C# and Java compilers don't, and Python programs are not compiled. If you use Python, Java, or C# for this assignment, please include an executable shell script that can be used to run your program.
+
+To make an executable shell script for for a Python, Java, or C# program, follow these steps:
+
+1. Make a plain-text file named p4 that has one of the following commands in it:
+python3 p4.py $1 
+java Project4 $1 
+mono p4.exe $1
+
+The third command (mono p4.exe) is for running a C# program. On the server you can type ./p4.exe to run a C# program (without the mono) but on macOS, which I sometimes use when grading, it's required.
+
+2. Execute the following command to make the shell script executable:
+chmod +x p4
+
+Executing the following command should run your program:
+./p4
+Submission
+
+Put your files in a tar file and submit them to Canvas. The required files for each programming language are listed below.
+• C: Source file (p4.c) and Makefile
+• C++: Source file (p4.cpp) and Makefile
+• C#: Source file (p4.cs), Makefile, p4 shell script
+• Java: Source file (Project4.java), Makefile, p4 shell script
+• Python: Source file (p4.py), p4 shell script
+
+For C or C++, the name of the executable that your Makefile produces should be p4
+
+You can include additional source files if you'd like, but the main function should be in the source file with the name listed above.
