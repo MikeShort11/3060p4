@@ -1,6 +1,15 @@
 
 import sys
 
+class Process:
+    def __init__(self, arrival_time: int, burst_time: int):
+        self.arrival_time = arrival_time
+        self.burst_time = burst_time
+        self.remaining_time = burst_time
+        self.start_time = None
+        self.completion_time = None
+        self.wait_time = 0  
+
 def read_input() -> list:
     output_list = []
     for line in sys.stdin:
@@ -12,9 +21,9 @@ def read_input() -> list:
 
 def first_come_first_served(inputs: list):
     #lists are stored as: [running_sum, counter]
-    response_times = []
-    wait_times = []
-    turnaround_times = []
+    response_times = [0, 0]
+    wait_times = [0, 0]
+    turnaround_times = [0, 0]
     
     clock = 0
     
@@ -32,7 +41,7 @@ def first_come_first_served(inputs: list):
         
         turnaround_time = completion_time - arrival_time
         turnaround_times[0] += turnaround_time
-        turnaround_time[1] += 1
+        turnaround_times[1] += 1
         
         wait_time = turnaround_time - burst_time
         wait_times[0] += wait_time
@@ -46,44 +55,71 @@ def first_come_first_served(inputs: list):
     return avg_response, avg_wait, avg_turnaround
 
 def shortest_job_first(inputs: list):
-    #lists are stored as: [running_sum, counter]
-    response_times = []
-    wait_times = []
-    turnaround_times = []
+    pass
 
-    #each prossess object is [arrival_time, remaining_time, running_wait_time]
+def shortest_time_remaining_first(inputs: list):
+    #lists are stored as: [running_sum, counter]
+    response_times = [0, 0]
+    wait_times = [0, 0]
+    turnaround_times = [0, 0]
+
     prossess_queue = []
     clock = 0
-    cur_prossess = [] #where the current prossess is stored
+    cur_prossess = None
+    unarrived = len(inputs)
+    processed_count = 0
 
     while(True):
         #check for a ready prossess
-        for i in list:
+        for i in inputs:
             if i[0] == clock:
-                i[2] = 0
-                prossess_queue.append(i)
-        #check if a ready prossess is shorter
-        if cur_prossess:
-            #iterate over a copy to avoid errors removing items from the list
-            for i in prossess_queue[:]:
-                if i[1] < cur_prossess[1]:
+                ready_prossess = Process(clock, i[1])
+                prossess_queue.append(ready_prossess)
+                unarrived -= 1
+
+        # Find the process with shortest remaining time
+        if prossess_queue:
+            shortest_process = min(prossess_queue, key=lambda p: p.remaining_time)
+            
+            # If no current process or found a shorter one, switch
+            if not cur_prossess or shortest_process.remaining_time < cur_prossess.remaining_time:
+                if cur_prossess:
                     prossess_queue.append(cur_prossess)
-                    prossess_queue.remove(i)
-                    cur_prossess = i
-        cur_prossess[1] -= 1
-        if cur_prossess == 0:
-            response_times[0] += clock - cur_prossess[0]
+                prossess_queue.remove(shortest_process)
+                cur_prossess = shortest_process
+
+        # Track first start for response time
+        if cur_prossess and cur_prossess.start_time is None:
+            cur_prossess.start_time = clock
+            response_times[0] += cur_prossess.start_time - cur_prossess.arrival_time
             response_times[1] += 1
 
-            wait_times[0]L
+        #incremnt one tick on the current prosses, if this ends the prosses greab its data
+        if cur_prossess:
+            cur_prossess.remaining_time -= 1
+        #if prossess is done on this cycle, complete it and add stats to return values
+        if cur_prossess and cur_prossess.remaining_time == 0:
+            completion_time = clock + 1#competes at the end of the tick
+            wait_times[0] += cur_prossess.wait_time
+            wait_times[1] += 1
 
-        #increment wait times
+            turnaround_times[0] += completion_time - cur_prossess.arrival_time
+            turnaround_times[1] += 1
+            cur_prossess = None
+            processed_count += 1
+        #increment wait times and clock
         for i in prossess_queue:
-            i[2] += 1
+            i.wait_time += 1
         clock += 1
+        
+        #check for no work left
+        if processed_count == len(inputs):
+            break
 
-def shortest_time_remaining_first():
-    pass
+    avg_response = response_times[0] / response_times[1]
+    avg_wait = wait_times[0] / wait_times[1]
+    avg_turnaround = turnaround_times[0] / turnaround_times[1]
+    return avg_response, avg_wait, avg_turnaround
 
 def round_robin():
     pass
@@ -94,6 +130,11 @@ def main():
     # Test FCFS
     avg_resp, avg_wait, avg_turnaround = first_come_first_served(inputs)
     print(f"First Come, First Served")
+    print(f"Avg. Resp.: {avg_resp:.2f}, Avg. T.A.: {avg_turnaround:.2f}, Avg. Wait: {avg_wait:.2f}")
+    
+    # Test SRTF
+    avg_resp, avg_wait, avg_turnaround = shortest_time_remaining_first(inputs)
+    print(f"Shortest Remaining Time First")
     print(f"Avg. Resp.: {avg_resp:.2f}, Avg. T.A.: {avg_turnaround:.2f}, Avg. Wait: {avg_wait:.2f}")
 
 if __name__ == "__main__":
